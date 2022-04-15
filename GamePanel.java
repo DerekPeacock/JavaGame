@@ -9,16 +9,15 @@ import javax.swing.JPanel;
 
 public class GamePanel extends JPanel
 {
-    public static final int WIDTH = 600;
-    public static final int HEIGHT = 500;
+    private int width, height;
 
     private Image image;
 
-    public GamePanel()
+    public GamePanel(int width, int height)
     {
-       this.setPreferredSize(new Dimension(WIDTH, HEIGHT)) ; 
-       //this.setMinimumSize(new Dimension(WIDTH, HEIGHT)) ; 
-       //this.setMaximumSize(new Dimension(WIDTH, HEIGHT)) ; 
+       this.width = width; this.height = height;
+
+       this.setPreferredSize(new Dimension(width, height)) ; 
 
        image = new ImageIcon("image.png").getImage();
     }
