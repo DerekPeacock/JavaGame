@@ -7,32 +7,69 @@ import java.awt.Image;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
+/**
+ * This Panel hosts the game, and uses a Thread to ensure
+ * that the run() method is called FPS frames per second
+ * to ensure smooth animation.
+ * @author: Derek Peacock
+ * @version: 0
+ */
 public class GamePanel extends JPanel implements Runnable
 {
     private Thread thread;
     private boolean running = false;
+    
+    public static final int FPS = 30; // Frames/Second
+    private long frameTime = 1000 / FPS;
 
     private int width, height;
 
     private Image backgroundImage;
     private Image playerSprite;
 
+    private KeyHandler keyHandler = new KeyHandler();
+
+    // Player's Position and size
+
+    private int playerX = 100;
+    private int playerY = 100;
+    private int playerSize = 64;
+    private int velocity = 5;
+
+    /**
+     * Setup the panel with a fixed size of width and
+     * height.  Add the KeyHanlder and load any images
+     * @param width: The width in pixels of the panel
+     * @param height: The height in pixels of the panel
+     */
     public GamePanel(int width, int height)
     {
         this.width = width; this.height = height;
         this.setPreferredSize(new Dimension(width, height)) ; 
-        
+        this.setBackground(Color.BLACK);
+        this.setDoubleBuffered(true);
+
+        this.addKeyListener(keyHandler);
+        this.setFocusable(true);
+
         System.out.println("Game Panel is Created!");
         loadImages();
         start();
     }
 
+    /**
+     * Load any images used in drawing the screen.
+     */
     public void loadImages()
     {
         backgroundImage = new ImageIcon("images/green_background_600.png").getImage();
         playerSprite = new ImageIcon("images/0_Golem_Running_002.png").getImage(); 
     }
 
+    /**
+     * Create a Thread and start it, which wiil lead to
+     * the run() methods being called repeatedly.
+     */
     public synchronized void start()
     {
         thread = new Thread(this);
@@ -40,6 +77,10 @@ public class GamePanel extends JPanel implements Runnable
         running = true;
     }
 
+    /**
+     * Stop the Thread from calling the run method
+     * repeatedly.
+     */
     public synchronized void stop()
     {
         try 
@@ -62,17 +103,31 @@ public class GamePanel extends JPanel implements Runnable
     @Override
     public void run() 
     {
+
+        long currentTime = System.currentTimeMillis();
+        long nextDrawTime = currentTime + frameTime;
+
         while (running)
         {
             update();
             repaint();
-            delay(330);
+
+            long remainingTime = nextDrawTime - System.currentTimeMillis();
+            
+            if(remainingTime > 0)
+                delay(remainingTime);
+
+            System.out.println("Elapsed Time = " + 
+                (System.currentTimeMillis() - currentTime));
+            
+            nextDrawTime += frameTime;
+            currentTime = System.currentTimeMillis();
         }
 
         stop();
     }
 
-    private void delay(int milliseconds)
+    private void delay(long milliseconds)
     {
         try 
         {
@@ -91,7 +146,27 @@ public class GamePanel extends JPanel implements Runnable
      */
     private void update() 
     {
-        System.out.println("Game is Updating!");
+        if(keyHandler.upPressed && 
+          (playerY > velocity))
+        {
+            playerY -= velocity;
+        }
+        if(keyHandler.downPressed && 
+          (playerY < height - playerSize - velocity))
+        {
+            playerY += velocity;
+        }
+        if(keyHandler.leftPressed && playerX > velocity)
+        {
+            playerX -= velocity;
+        }
+        if(keyHandler.rightPressed && 
+          (playerX < width - playerSize - velocity))
+        {
+            playerX += velocity;
+        }
+
+        // System.out.println("Game is Updating!");
     }
 
     /**
@@ -102,18 +177,19 @@ public class GamePanel extends JPanel implements Runnable
     {
         Graphics2D g2D = (Graphics2D)g;
         
-        g2D.drawImage(backgroundImage, 0, 0, null);
+        g2D.drawImage(backgroundImage, 0, 0, width, height, null);
         g2D.drawImage(playerSprite, 200, 200, Color.green, null);
 
         g2D.setPaint(Color.blue);
 
         g2D.drawLine(0,0, 600, 500);
         g2D.drawRect(300, 100, 100, 100);
-        g2D.fillRect(100, 100, 100, 100);
+        g2D.fillRect(playerX, playerY, playerSize, playerSize);
 
-        g2D.drawString("Derek", 50, 50);
+        g2D.drawString("Derek", 220, 280);
 
-        System.out.println("Painting the screen!");
+        //System.out.println("Painting the screen!");
+
         g2D.dispose();
     }    
 }
