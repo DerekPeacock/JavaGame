@@ -2,6 +2,13 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
+/**
+ * This Sprite is a simple rectangle that can be drawn and
+ * moved left, right, up or down using key pressed but
+ * the movement is restricted within the rectangular border.
+ * @author: Derek Peacock
+ * @version: 0
+ */
 public class Sprite
 {
     private int x = 0;
