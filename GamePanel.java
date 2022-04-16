@@ -114,5 +114,6 @@ public class GamePanel extends JPanel implements Runnable
         g2D.drawString("Derek", 50, 50);
 
         System.out.println("Painting the screen!");
+        g2D.dispose();
     }    
 }
