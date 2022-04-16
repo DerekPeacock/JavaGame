@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.Image;
 
 import javax.swing.ImageIcon;
@@ -25,16 +26,13 @@ public class GamePanel extends JPanel implements Runnable
     private int width, height;
 
     private Image backgroundImage;
-    private Image playerSprite;
+    private Image playerImage;
 
     private KeyHandler keyHandler = new KeyHandler();
 
     // Player's Position and size
 
-    private int playerX = 100;
-    private int playerY = 100;
-    private int playerSize = 64;
-    private int velocity = 5;
+    private Sprite player;
 
     /**
      * Setup the panel with a fixed size of width and
@@ -63,7 +61,9 @@ public class GamePanel extends JPanel implements Runnable
     public void loadImages()
     {
         backgroundImage = new ImageIcon("images/green_background_600.png").getImage();
-        playerSprite = new ImageIcon("images/0_Golem_Running_002.png").getImage(); 
+        playerImage = new ImageIcon("images/0_Golem_Running_002.png").getImage(); 
+
+        player = new Sprite(new Rectangle(0, 0, width, height));
     }
 
     /**
@@ -117,11 +117,11 @@ public class GamePanel extends JPanel implements Runnable
             if(remainingTime > 0)
                 delay(remainingTime);
 
-            System.out.println("Elapsed Time = " + 
-                (System.currentTimeMillis() - currentTime));
+            //System.out.println("Elapsed Time = " + 
+            //    (System.currentTimeMillis() - currentTime));
+            //currentTime = System.currentTimeMillis();
             
             nextDrawTime += frameTime;
-            currentTime = System.currentTimeMillis();
         }
 
         stop();
@@ -146,26 +146,7 @@ public class GamePanel extends JPanel implements Runnable
      */
     private void update() 
     {
-        if(keyHandler.upPressed && 
-          (playerY > velocity))
-        {
-            playerY -= velocity;
-        }
-        if(keyHandler.downPressed && 
-          (playerY < height - playerSize - velocity))
-        {
-            playerY += velocity;
-        }
-        if(keyHandler.leftPressed && playerX > velocity)
-        {
-            playerX -= velocity;
-        }
-        if(keyHandler.rightPressed && 
-          (playerX < width - playerSize - velocity))
-        {
-            playerX += velocity;
-        }
-
+        player.update(keyHandler);
         // System.out.println("Game is Updating!");
     }
 
@@ -178,15 +159,10 @@ public class GamePanel extends JPanel implements Runnable
         Graphics2D g2D = (Graphics2D)g;
         
         g2D.drawImage(backgroundImage, 0, 0, width, height, null);
-        g2D.drawImage(playerSprite, 200, 200, Color.green, null);
-
-        g2D.setPaint(Color.blue);
-
-        g2D.drawLine(0,0, 600, 500);
-        g2D.drawRect(300, 100, 100, 100);
-        g2D.fillRect(playerX, playerY, playerSize, playerSize);
-
+        g2D.drawImage(playerImage, 200, 200, Color.green, null);
         g2D.drawString("Derek", 220, 280);
+
+        player.draw(g2D);
 
         //System.out.println("Painting the screen!");
 
